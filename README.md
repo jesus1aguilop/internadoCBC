@@ -1,4 +1,4 @@
-# sena
+# INTERNADO CBC
 
 A new Flutter project.
 
