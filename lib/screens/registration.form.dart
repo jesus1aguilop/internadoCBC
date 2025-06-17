@@ -48,22 +48,85 @@ class _RegistrationFormState extends State<RegistrationForm> {
     super.dispose();
   }
 
+  void _completeRegistration() {
+    if (_selectedTipoDocumento == null ||
+        _numeroDocumentoController.text.isEmpty ||
+        _selectedGenero == null ||
+        _selectedEtnia == null ||
+        _selectedDiscapacidad == null) {
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Información Incompleta'),
+              content: const Text(
+                'Por favor complete todos los campos del formulario.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+
+    final Map<String, dynamic> completeData = {
+      ...widget.userData,
+      'tipo_documento': _selectedTipoDocumento,
+      'numero_documento': _numeroDocumentoController.text,
+      'genero': _selectedGenero,
+      'etnia': _selectedEtnia,
+      'discapacidad': _selectedDiscapacidad,
+      'es_aprendiz': widget.isAprendiz,
+      'foto': _image?.path,
+    };
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Registro Exitoso'),
+            content: const Text(
+              'Su información ha sido registrada correctamente.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePage()),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    String tituloAppBar;
+    if (widget.isAprendiz) {
+      tituloAppBar = 'Registro de Aprendiz';
+    } else if (widget.userData['rol'] == 'cocina') {
+      tituloAppBar = 'Registro Cocina';
+    } else {
+      tituloAppBar = 'Registro de Administrador';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.isAprendiz
-              ? 'Registro de Aprendiz'
-              : 'Registro de Administrador',
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: Text(tituloAppBar, style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF39A900),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Stack(
         children: [
-          // Background curve
           Positioned(
             bottom: 0,
             left: 0,
@@ -79,19 +142,16 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ),
             ),
           ),
-
-          // Form content
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Show data from first screen
                 Card(
                   margin: const EdgeInsets.only(bottom: 30),
                   elevation: 4,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -112,178 +172,40 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     ),
                   ),
                 ),
-
-                // Discapacidades dropdown
-                const Text(
-                  'Discapacidades',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+                _buildDropdown(
+                  'Discapacidad',
+                  _selectedDiscapacidad,
+                  ['Ninguna', 'Visual', 'Auditiva', 'Motriz', 'Otra'],
+                  (val) => setState(() => _selectedDiscapacidad = val),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                      border: InputBorder.none,
-                      hintText: 'Seleccionar',
-                    ),
-                    value: _selectedDiscapacidad,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    isExpanded: true,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedDiscapacidad = newValue;
-                      });
-                    },
-                    items:
-                        <String>[
-                          'Ninguna',
-                          'Visual',
-                          'Auditiva',
-                          'Motriz',
-                          'Otra',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                  ),
-                ),
-
                 const SizedBox(height: 20),
-
-                // Etnia dropdown
-                const Text(
+                _buildDropdown(
                   'Etnia',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+                  _selectedEtnia,
+                  [
+                    'Mestizo',
+                    'Indígena',
+                    'Afrodescendiente',
+                    'Caucásico',
+                    'Otro',
+                  ],
+                  (val) => setState(() => _selectedEtnia = val),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                      border: InputBorder.none,
-                      hintText: 'Seleccionar',
-                    ),
-                    value: _selectedEtnia,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    isExpanded: true,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedEtnia = newValue;
-                      });
-                    },
-                    items:
-                        <String>[
-                          'Mestizo',
-                          'Indígena',
-                          'Afrodescendiente',
-                          'Caucásico',
-                          'Otro',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                  ),
-                ),
-
                 const SizedBox(height: 20),
-
-                // Género dropdown
-                const Text(
+                _buildDropdown(
                   'Género',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+                  _selectedGenero,
+                  ['Masculino', 'Femenino', 'No binario', 'Prefiero no decir'],
+                  (val) => setState(() => _selectedGenero = val),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                      border: InputBorder.none,
-                      hintText: 'Seleccionar',
-                    ),
-                    value: _selectedGenero,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    isExpanded: true,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedGenero = newValue;
-                      });
-                    },
-                    items:
-                        <String>[
-                          'Masculino',
-                          'Femenino',
-                          'No binario',
-                          'Prefiero no decir',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                  ),
-                ),
-
                 const SizedBox(height: 20),
-
-                // Tipo de Documento dropdown
-                const Text(
+                _buildDropdown(
                   'Tipo de Documento',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+                  _selectedTipoDocumento,
+                  ['DNI', 'Pasaporte', 'Cédula', 'Otro'],
+                  (val) => setState(() => _selectedTipoDocumento = val),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                      border: InputBorder.none,
-                      hintText: 'Seleccionar',
-                    ),
-                    value: _selectedTipoDocumento,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    isExpanded: true,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedTipoDocumento = newValue;
-                      });
-                    },
-                    items:
-                        <String>[
-                          'DNI',
-                          'Pasaporte',
-                          'Cédula',
-                          'Otro',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                  ),
-                ),
-
                 const SizedBox(height: 20),
-
-                // Número de Documento text field
                 const Text(
                   'Número de Documento',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
@@ -291,6 +213,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _numeroDocumentoController,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey),
@@ -299,12 +222,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
                       borderSide: BorderSide(color: Colors.green),
                     ),
                   ),
-                  keyboardType: TextInputType.number,
                 ),
-
                 const SizedBox(height: 40),
-
-                // Adjuntar Foto button
                 Center(
                   child: Column(
                     children: [
@@ -331,19 +250,11 @@ class _RegistrationFormState extends State<RegistrationForm> {
                               ),
                             ),
                             const SizedBox(width: 10),
-                            if (_image == null) ...[
-                              const Icon(
-                                Icons.close,
-                                color: Colors.red,
-                                size: 24,
-                              ),
-                            ] else ...[
-                              const Icon(
-                                Icons.check,
-                                color: Colors.green,
-                                size: 24,
-                              ),
-                            ],
+                            Icon(
+                              _image == null ? Icons.close : Icons.check,
+                              color: _image == null ? Colors.red : Colors.green,
+                              size: 24,
+                            ),
                           ],
                         ),
                       ),
@@ -355,16 +266,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 40),
-
-                // Registrate button
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Complete registration and process all form data
-                      _completeRegistration();
-                    },
+                    onPressed: _completeRegistration,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       elevation: 0,
@@ -383,7 +288,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 60),
               ],
             ),
@@ -393,80 +297,45 @@ class _RegistrationFormState extends State<RegistrationForm> {
     );
   }
 
-  void _completeRegistration() {
-    // Validate form
-    if (_selectedTipoDocumento == null ||
-        _numeroDocumentoController.text.isEmpty ||
-        _selectedGenero == null ||
-        _selectedEtnia == null ||
-        _selectedDiscapacidad == null) {
-      // Show error dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Información Incompleta'),
-            content: const Text(
-              'Por favor complete todos los campos del formulario.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
-
-    // Combine data from both forms
-    final Map<String, dynamic> completeData = {
-      ...widget.userData,
-      'tipo_documento': _selectedTipoDocumento,
-      'numero_documento': _numeroDocumentoController.text,
-      'genero': _selectedGenero,
-      'etnia': _selectedEtnia,
-      'discapacidad': _selectedDiscapacidad,
-      'es_aprendiz': widget.isAprendiz,
-      'foto': _image?.path,
-    };
-
-    // Aquí normalmente enviarías los datos al backend
-    // Para esta implementación, mostraremos un mensaje de éxito y navegaremos al HomePage
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Registro Exitoso'),
-          content: const Text(
-            'Su información ha sido registrada correctamente.',
+  Widget _buildDropdown(
+    String label,
+    String? currentValue,
+    List<String> options,
+    void Function(String?) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(30),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Cerrar el diálogo
-                Navigator.of(context).pop();
-
-                // Navegar a la página de inicio con los datos del usuario
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => const HomePage(
-                          // Podrías pasar datos del usuario aquí si es necesario
-                        ),
-                  ),
-                );
-              },
-              child: const Text('OK'),
+          child: DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+              border: InputBorder.none,
+              hintText: 'Seleccionar',
             ),
-          ],
-        );
-      },
+            value: currentValue,
+            icon: const Icon(Icons.arrow_drop_down),
+            isExpanded: true,
+            onChanged: onChanged,
+            items:
+                options.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }

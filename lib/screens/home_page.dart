@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sena/screens/lista_aprendiz.dart';
 
-
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +32,11 @@ class HomePage extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: const ClipOval(
-                      child: Icon(Icons.person, size: 40, color: Color(0xFF33A02C)),
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Color(0xFF33A02C),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -51,10 +54,7 @@ class HomePage extends StatelessWidget {
                       ),
                       Text(
                         'ID:3435525',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],
                   ),
@@ -188,9 +188,7 @@ class HomePage extends StatelessWidget {
       // Bottom Navigation Bar
       bottomNavigationBar: Container(
         height: 70,
-        decoration: const BoxDecoration(
-          color: Color(0xFF33A02C),
-        ),
+        decoration: const BoxDecoration(color: Color(0xFF33A02C)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: const [
@@ -218,11 +216,7 @@ class HomePage extends StatelessWidget {
           color: const Color(0xFF33A02C),
           borderRadius: BorderRadius.circular(20),
           boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 5,
-              spreadRadius: 1,
-            ),
+            BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1),
           ],
         ),
         child: Transform.rotate(
@@ -274,11 +268,7 @@ class HomePage extends StatelessWidget {
                     color: const Color(0xFFCCEBC5),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Icon(
-                    icon,
-                    color: const Color(0xFF33A02C),
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: const Color(0xFF33A02C), size: 24),
                 ),
               const SizedBox(height: 5),
               Text(

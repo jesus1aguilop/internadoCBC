@@ -10,9 +10,9 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final Color senaGreen = const Color(0xFF39A900);
-  bool isAprendiz = true;
+  int tipoRegistro = 0; // 0: Aprendiz, 1: Administrador, 2: Cocina
 
-  // Form controllers
+  // Controllers
   final TextEditingController _nombresController = TextEditingController();
   final TextEditingController _apellidosController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -38,125 +38,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Top curved section with green background
+            // Encabezado verde
             Container(
               color: senaGreen,
               child: Column(
                 children: [
                   const SizedBox(height: 40),
-                  // Login/Register toggle button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: _buildToggleButton(context),
                   ),
-
-                  // Registration type selection
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 30,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        // Aprendiz option
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isAprendiz = true;
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 4,
-                                  ),
-                                  color: isAprendiz ? senaGreen : Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Registro del',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Aprendiz',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Administrador option
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isAprendiz = false;
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 4,
-                                  ),
-                                  color: !isAprendiz ? senaGreen : Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Registro del',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Administrador',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildUserTypeOption('Aprendiz', 0),
+                        _buildUserTypeOption('Administrador', 1),
+                        _buildUserTypeOption('Delegado', 2),
                       ],
                     ),
                   ),
-
-                  // Curved bottom edge
                   Container(
                     height: 50,
                     decoration: const BoxDecoration(
@@ -171,11 +76,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
             ),
 
-            // Form section
+            // Formulario
             Stack(
               alignment: Alignment.center,
               children: [
-                // Background watermark
                 Positioned(
                   child: Opacity(
                     opacity: 0.1,
@@ -189,8 +93,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                   ),
                 ),
-
-                // Form fields
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
@@ -226,18 +128,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       const SizedBox(height: 40),
 
-                      // Seguir button
+                      // Botón seguir
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigate to the next registration screen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
                                     (context) => RegistrationForm(
-                                      isAprendiz: isAprendiz,
+                                      isAprendiz: tipoRegistro == 0,
                                       userData: {
                                         'nombres': _nombresController.text,
                                         'apellidos': _apellidosController.text,
@@ -277,6 +178,39 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  Widget _buildUserTypeOption(String label, int value) {
+    bool isSelected = tipoRegistro == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          tipoRegistro = value;
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+              color: isSelected ? senaGreen : Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Registro de\n$label',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildToggleButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -285,13 +219,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
       child: Row(
         children: [
-          // Login button (inactive)
           Expanded(
             child: GestureDetector(
-              onTap: () {
-                // Return to login screen
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -312,7 +242,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
             ),
           ),
-          // Register button (active)
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
